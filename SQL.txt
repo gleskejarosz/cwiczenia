@@ -1,0 +1,764 @@
+/*
+Leetcode - my studies
+*/
+
+CREATE DATABASE exercises;
+
+USE exercises;
+
+/*
+595
+*/
+
+CREATE TABLE World(
+    name VARCHAR(32),
+    PRIMARY KEY(name),
+    continent VARCHAR(32),
+    area INT,
+    population INT,
+    gdp BIGINT
+);
+
+INSERT INTO World VALUES ("Afghanistan", "Asia", 652230, 25500100, 20343000000);
+INSERT INTO World VALUES ("Albania", "Europe", 28748, 2831741, 12960000000);
+INSERT INTO World VALUES ("Algeria", "Africa", 2381741, 37100000, 188681000000);
+INSERT INTO World VALUES ("Andorra", "Europe", 468, 78115, 3712000000);
+INSERT INTO World VALUES ("Angola", "Africa", 1246700, 20609294, 100990000000);
+
+SELECT name, population, area
+FROM World
+WHERE population >= 25000000 or area >= 3000000;
+
+/*
+1757
+*/
+
+CREATE TABLE Products(
+    product_id INT,
+    PRIMARY KEY(product_id),
+    low_fats ENUM('Y','N'),
+    recyclable ENUM('Y','N')
+);
+
+INSERT INTO Products VALUE (0, "Y", "N");
+INSERT INTO Products VALUE (1, "Y", "Y");
+INSERT INTO Products VALUE (2, "N", "Y");
+INSERT INTO Products VALUE (3, "Y", "Y");
+INSERT INTO Products VALUE (4, "N", "N");
+
+SELECT product_id
+FROM Products
+WHERE low_fats="Y" and recyclable="Y";
+
+/*
+584
+*/
+
+CREATE TABLE Customer(
+id INT,
+PRIMARY KEY(id),
+name VARCHAR(64),
+referee_id INT
+);
+
+INSERT INTO Customer VALUE (1, "Will", null);
+INSERT INTO Customer VALUE (2, "Jane", null);
+INSERT INTO Customer VALUE (3, "Alex", 2);
+INSERT INTO Customer VALUE (4, "Bill", null);
+INSERT INTO Customer VALUE (5, "Zack", 1);
+INSERT INTO Customer VALUE (6, "Mark", 2);
+
+SELECT * FROM Customer;
+
+SELECT name
+FROM Customer
+WHERE referee_id IS NULL OR referee_id != 2;
+
+/*
+183
+*/
+
+CREATE TABLE Orders(
+    id INT,
+    PRIMARY KEY(id),
+    customerId INT,
+    FOREIGN KEY (customerId) REFERENCES Customers(id)
+);
+
+INSERT INTO Customers VALUES (id, "Ela");
+INSERT INTO Customers VALUES (1, "Celina");
+INSERT INTO Customers VALUES (2, "Adam");
+
+SELECT * FROM Customers;
+
+INSERT INTO Orders VALUES (1, 0);
+INSERT INTO Orders VALUES (2, 0);
+INSERT INTO Orders VALUES (3, 1);
+
+SELECT
+    Customers.name AS Customers
+FROM Orders
+RIGHT JOIN Customers ON Customers.id = orders.customerId
+WHERE Orders.customerId IS NULL;
+
+/*
+1873
+*/
+
+CREATE TABLE Employees(
+employee_id INT,
+PRIMARY KEY(employee_id),
+name VARCHAR(64),
+salary INT
+);
+
+INSERT INTO Employees VALUE (2, "Meir", 3000);
+INSERT INTO Employees VALUE (3, "Michael", 3800);
+INSERT INTO Employees VALUE (7, "Addilyn", 7400);
+INSERT INTO Employees VALUE (8, "Juan", 6100);
+INSERT INTO Employees VALUE (9, "Kannon", 7700);
+
+SELECT * FROM Employees;
+
+SELECT employee_id,
+    IF(employee_id % 2 = 1 AND name NOT LIKE 'M%', salary, 0) AS bonus
+FROM Employees
+ORDER BY employee_id;
+
+/*
+627
+*/
+
+CREATE TABLE Salary(
+id INT,
+PRIMARY KEY(id),
+name VARCHAR(64),
+sex ENUM('m','f'),
+salary INT
+);
+
+INSERT INTO Salary VALUE (1, "A", 'm', 2500);
+INSERT INTO Salary VALUE (2, "B", 'f', 1500);
+INSERT INTO Salary VALUE (3, "C", 'm', 5500);
+INSERT INTO Salary VALUE (4, "D", 'f', 500);
+
+SELECT * FROM Salary;
+
+SELECT id, name, IF(sex='m','f','m') AS sex, salary
+FROM Salary;
+
+SET SQL_SAFE_UPDATES = 0;
+
+UPDATE Salary SET sex = If(sex='f', 'm', 'f');
+UPDATE Salary SET sex = CASE WHEN sex = 'f' THEN 'm' ELSE 'f' END;
+
+/*
+196
+*/
+
+CREATE TABLE Person2(
+id INT,
+PRIMARY KEY(id),
+email VARCHAR(64)
+);
+
+INSERT INTO Person2 VALUE (1, "john@example.com");
+INSERT INTO Person2 VALUE (2, "bob@example.com");
+INSERT INTO Person2 VALUE (3, "john@example.com");
+
+DELETE t1
+FROM Person2 t1
+INNER JOIN Person2 t2
+WHERE
+    t1.id < t2.id
+AND
+    t1.email = t2.email;
+
+SELECT
+    email,
+    COUNT(email)
+FROM
+    Person2
+GROUP BY
+    email
+HAVING
+    COUNT(email) > 1;
+
+/*
+1667
+*/
+
+CREATE TABLE Users(
+user_id INT,
+PRIMARY KEY(user_id),
+name VARCHAR(64)
+);
+
+INSERT INTO Users VALUE (1, "aLice");
+INSERT INTO Users VALUE (2, "bOB");
+
+ SELECT * FROM Users;
+
+ SELECT user_id,
+ CONCAT(UCASE(LEFT(name, 1)), LCASE(SUBSTRING(name, 2))) AS name
+ FROM Users
+ ORDER BY user_id;
+
+/*
+1484
+*/
+
+CREATE TABLE Activities(
+sell_date DATE,
+product VARCHAR(64)
+);
+
+INSERT INTO Activities VALUE ("2020-05-30", "Headphone");
+INSERT INTO Activities VALUE ("2020-06-01", "Pencil");
+INSERT INTO Activities VALUE ("2020-06-02", "Mask");
+INSERT INTO Activities VALUE ("2020-05-30", "Basketball");
+INSERT INTO Activities VALUE ("2020-06-01", "Bible");
+INSERT INTO Activities VALUE ("2020-06-02", "Mask");
+INSERT INTO Activities VALUE ("2020-05-30", "T-Shirt");
+
+SELECT
+sell_date,
+count(DISTINCT sell_date, product) AS num_sold,
+GROUP_CONCAT(DISTINCT product ORDER BY product ASC SEPARATOR ',') AS products
+FROM Activities
+GROUP BY sell_date;
+
+/*
+1527
+*/
+
+CREATE TABLE Patients(
+patient_id INT,
+PRIMARY KEY(patient_id),
+patient_name VARCHAR(64),
+conditions VARCHAR(64)
+);
+
+INSERT INTO Patients VALUE (1,"Daniel","YFEV COUGH");
+INSERT INTO Patients VALUE (2,"Alice","");
+INSERT INTO Patients VALUE (3,"Bob","DIAB100 MYOP");
+INSERT INTO Patients VALUE (4,"George","ACNE DIAB100");
+INSERT INTO Patients VALUE (5,"Alain","DIAB201");
+
+SELECT patient_id, patient_name, conditions
+FROM Patients
+WHERE conditions LIKE '%DIAB1%';
+
+SELECT patient_id,
+patient_name,
+conditions
+FROM Patients
+WHERE conditions like "DIAB1%" or conditions like "% DIAB1%";
+
+/*
+1965
+*/
+
+CREATE TABLE Employees3(
+employee_id INT,
+PRIMARY KEY(employee_id),
+name VARCHAR(64)
+);
+
+CREATE TABLE Salaries(
+employee_id INT,
+PRIMARY KEY(employee_id),
+salary INT
+);
+
+INSERT INTO Employees3 VALUE (2, "Crew");
+INSERT INTO Employees3 VALUE (4, "Haven");
+INSERT INTO Employees3 VALUE (5, "Kristian");
+
+INSERT INTO Salaries VALUE (5, 76071);
+INSERT INTO Salaries VALUE (1, 22517);
+INSERT INTO Salaries VALUE (4, 63539);
+
+SELECT *
+FROM Employees3;
+
+SELECT *
+FROM Salaries;
+
+SELECT Salaries.employee_id
+FROM Salaries
+JOIN Employees3
+ON Employees3.employee_id=Salaries.employee_id;
+
+
+SELECT employee_id FROM Salaries
+WHERE employee_id NOT IN (SELECT employee_id FROM Employees3)
+UNION
+SELECT employee_id FROM Employees3
+WHERE employee_id NOT IN (SELECT employee_id FROM Salaries)
+ORDER BY employee_id;
+
+
+/*
+1795
+*/
+
+CREATE TABLE Products2(
+product_id INT,
+PRIMARY KEY(product_id),
+store1 INT DEFAULT NULL,
+store2 INT DEFAULT NULL,
+store3 INT DEFAULT NULL
+);
+INSERT INTO Products2 VALUE (0, 95, 100, 105);
+INSERT INTO Products2 VALUE (1, 70, null, 80);
+SELECT * FROM Products2;
+
+SELECT
+product_id,
+"store1" AS store,
+Products2.store1 AS price
+FROM Products2
+WHERE Products2.store1 > 0
+UNION
+SELECT
+product_id,
+"store2" AS store,
+Products2.store2 AS price
+FROM Products2
+WHERE Products2.store2 > 0
+UNION
+SELECT
+product_id,
+"store3" AS store,
+Products2.store3 AS price
+FROM Products2
+WHERE Products2.store3 > 0
+ORDER BY product_id;
+
+/*
+608
+*/
+
+CREATE TABLE Tree(
+id INT,
+PRIMARY KEY(id),
+p_id INT
+);
+INSERT INTO Tree VALUE (1, null);
+INSERT INTO Tree VALUE (2, 1);
+INSERT INTO Tree VALUE (3, 1);
+INSERT INTO Tree VALUE (4, 2);
+INSERT INTO Tree VALUE (5, 2);
+
+SELECT * FROM Tree;
+
+SELECT id,
+CASE
+WHEN p_id IS NULL THEN 'Root'
+WHEN id IN (SELECT p_id FROM Tree) THEN 'Inner'
+ELSE 'Leaf'
+END as type
+FROM Tree;
+
+/*
+176
+*/
+
+CREATE TABLE Employee4(
+id INT,
+PRIMARY KEY(id),
+salary INT
+);
+
+INSERT INTO Employee4 VALUE (1, 100);
+INSERT INTO Employee4 VALUE (2, 200);
+INSERT INTO Employee4 VALUE (3, 300);
+INSERT INTO Employee4 VALUE (4, 400);
+
+SELECT * FROM Employee4;
+
+INSERT INTO Employee4 VALUE (1, 100);
+INSERT INTO Employee4 VALUE (2, 100);
+INSERT INTO Employee4 VALUE (3, 50);
+
+SELECT
+CASE
+WHEN COUNT(salary) = 1 THEN null
+WHEN (SELECT salary FROM Employee4 GROUP BY salary ORDER BY salary DESC limit 1,1) IS NULL THEN null
+ELSE (SELECT salary FROM Employee4 GROUP BY salary ORDER BY salary DESC limit 1,1)
+END as SecondHighestSalary
+FROM Employee4;
+
+SELECT salary FROM Employee4 GROUP BY salary limit 0,1;
+/*
+175
+*/
+
+CREATE TABLE Person3(
+personId INT,
+PRIMARY KEY(personId),
+lastName VARCHAR(64),
+firstName VARCHAR(64)
+);
+
+CREATE TABLE Address2(
+addressId INT,
+PRIMARY KEY(addressId),
+personId INT,
+city VARCHAR(64),
+state VARCHAR(64)
+);
+
+INSERT INTO Person3 VALUE (1, "Wang","Allen");
+INSERT INTO Person3 VALUE (2, "Alice","Bob");
+
+INSERT INTO Address2 VALUE (1, 2, "New York City", "New York");
+INSERT INTO Address2 VALUE (2, 3, "Leetcode", "California");
+
+SELECT
+firstName,
+lastname,
+city,
+state
+FROM Person3
+LEFT JOIN Address2
+ON Person3.personId = Address2.personId;
+
+/*
+1581
+*/
+
+CREATE TABLE Visits(
+visit_id INT,
+PRIMARY KEY(visit_id),
+customer_id INT
+);
+
+CREATE TABLE Transactions(
+transaction_id INT,
+visit_id INT,
+PRIMARY KEY(transaction_id),
+amount INT
+);
+
+INSERT INTO Visits VALUE (1, 23);
+INSERT INTO Visits VALUE (2, 9);
+INSERT INTO Visits VALUE (4, 30);
+INSERT INTO Visits VALUE (5, 54);
+INSERT INTO Visits VALUE (6, 96);
+INSERT INTO Visits VALUE (7, 54);
+INSERT INTO Visits VALUE (8, 54);
+
+INSERT INTO Transactions VALUE (2, 5, 310);
+INSERT INTO Transactions VALUE (3, 5, 300);
+INSERT INTO Transactions VALUE (9, 5, 200);
+INSERT INTO Transactions VALUE (12, 1, 910);
+INSERT INTO Transactions VALUE (13, 2, 970);
+
+SELECT * FROM Visits;
+SELECT * FROM Transactions;
+
+SELECT DISTINCT customer_id
+FROM visits
+WHERE visit_id NOT IN (SELECT visit_id FROM transactions)
+UNION
+SELECT COUNT(customer_id) AS count_no_trans
+FROM visits
+WHERE visit_id NOT IN (SELECT visit_id FROM transactions);
+
+SELECT
+t1.customer_id,
+COUNT(t1.customer_id) AS count_no_trans
+FROM Visits t1
+LEFT JOIN Transactions t2
+ON t1.visit_id = t2.visit_id
+WHERE t2.transaction_id IS NULL
+GROUP BY t1.customer_id;
+
+
+/*
+1148
+*/
+
+CREATE TABLE Views(
+article_id INT,
+author_id INT,
+viewer_id INT,
+view_date DATE
+);
+
+INSERT INTO Views VALUE (1, 3, 5, "2019-08-01");
+INSERT INTO Views VALUE (1, 3, 6, "2019-08-02");
+INSERT INTO Views VALUE (2, 7, 7, "2019-08-01");
+INSERT INTO Views VALUE (2, 7, 6, "2019-08-02");
+INSERT INTO Views VALUE (4, 7, 1, "2019-07-22");
+INSERT INTO Views VALUE (3, 4, 4, "2019-07-21");
+INSERT INTO Views VALUE (3, 4, 4, "2019-07-21");
+
+SELECT author_id AS id
+FROM Views
+WHERE author_id=viewer_id
+GROUP BY author_id
+ORDER BY id;
+
+/*
+197
+*/
+SELECT aura2.id
+FROM Weather aura1
+JOIN Weather aura2
+ON aura2.recordDate=DATE_ADD(aura1.recordDate,interval 1 day)
+WHERE aura2.temperature > aura1.temperature;
+
+/*
+607
+*/
+
+CREATE TABLE SalesPerson (
+sales_id INT,
+PRIMARY KEY(sales_id),
+name VARCHAR(64),
+salary INT,
+commission_rate INT,
+hire_date DATE
+);
+
+CREATE TABLE Company(
+com_id INT,
+PRIMARY KEY(com_id),
+name VARCHAR(64),
+city VARCHAR(64)
+);
+
+CREATE TABLE Orders1(
+order_id INT,
+PRIMARY KEY(order_id),
+order_date DATE,
+com_id INT,
+FOREIGN KEY (com_id) REFERENCES Company(com_id),
+sales_id INT,
+FOREIGN KEY (sales_id) REFERENCES SalesPerson(sales_id),
+amount INT
+);
+
+INSERT INTO SalesPerson VALUE (1, "John", 100000, 6, "2006-04-01");
+INSERT INTO SalesPerson VALUE (2, "Amy", 12000, 5, "2010-05-01");
+INSERT INTO SalesPerson VALUE (3, "Mark", 65000, 12, "2008-12-25");
+INSERT INTO SalesPerson VALUE (4, "Pam", 25000, 25, "2005-01-01");
+INSERT INTO SalesPerson VALUE (5, "Alex", 5000, 10, "2007-02-03");
+
+INSERT INTO Company VALUE (1, "RED","Boston");
+INSERT INTO Company VALUE (2, "ORANGE","New York");
+INSERT INTO Company VALUE (3, "YELLOW","Boston");
+INSERT INTO Company VALUE (4, "GREEN","Austin");
+
+INSERT INTO Orders1 VALUE (1, "2014-01-01", 3, 4, 10000);
+INSERT INTO Orders1 VALUE (2, "2014-01-02", 4, 5, 5000);
+INSERT INTO Orders1 VALUE (3, "2014-01-03", 1, 1, 50000);
+INSERT INTO Orders1 VALUE (4, "2014-01-04", 1, 4, 25000);
+
+SELECT * FROM salesperson;
+SELECT * FROM Company;
+SELECT * FROM orders1;
+
+SELECT name
+FROM salesperson
+WHERE sales_id
+NOT IN (
+SELECT t1.sales_id
+FROM orders1 t1
+JOIN company t2
+ON t1.com_id = t2.com_id
+WHERE t2.name ='RED');
+
+/*
+1141
+*/
+
+ CREATE TABLE Activity(
+ user_id INT,
+ session_id INT,
+ activity_date DATE,
+ activity_type ENUM('open_session', 'end_session', 'scroll_down', 'send_message')
+ );
+
+ INSERT INTO Activity VALUE (1, 1, "2019-07-20", 1);
+ INSERT INTO Activity VALUE (1, 1, "2019-07-20", 3);
+ INSERT INTO Activity VALUE (1, 1, "2019-07-20", 2);
+ INSERT INTO Activity VALUE (2, 4, "2019-07-20", 1);
+ INSERT INTO Activity VALUE (2, 4, "2019-07-21", 4);
+ INSERT INTO Activity VALUE (2, 4, "2019-07-21", 2);
+ INSERT INTO Activity VALUE (3, 2, "2019-07-21", 1);
+ INSERT INTO Activity VALUE (3, 2, "2019-07-21", 4);
+ INSERT INTO Activity VALUE (3, 2, "2019-07-21", 2);
+ INSERT INTO Activity VALUE (4, 3, "2019-06-25", 1);
+ INSERT INTO Activity VALUE (4, 3, "2019-06-25", 2);
+
+SELECT * FROM Activity;
+
+SELECT
+activity_date AS day,
+COUNT(DISTINCT user_id) AS active_users
+FROM Activity
+WHERE (activity_date BETWEEN '2019-06-28' AND '2019-07-28')
+GROUP BY activity_date;
+
+/*
+1693
+*/
+
+CREATE TABLE DailySales(
+date_id DATE,
+make_name VARCHAR(64),
+lead_id INT,
+partner_id INT
+);
+
+INSERT INTO DailySales VALUE ("2020-12-8", "toyota", 0, 1);
+INSERT INTO DailySales VALUE ("2020-12-8", "toyota", 1, 0);
+INSERT INTO DailySales VALUE ("2020-12-8", "toyota", 1, 2);
+INSERT INTO DailySales VALUE ("2020-12-7", "toyota", 0, 2);
+INSERT INTO DailySales VALUE ("2020-12-7", "toyota", 0, 1);
+INSERT INTO DailySales VALUE ("2020-12-8", "honda", 1, 2);
+INSERT INTO DailySales VALUE ("2020-12-8", "honda", 2, 1);
+INSERT INTO DailySales VALUE ("2020-12-7", "honda", 0, 1);
+INSERT INTO DailySales VALUE ("2020-12-7", "honda", 1, 2);
+INSERT INTO DailySales VALUE ("2020-12-7", "honda", 2, 1);
+
+SELECT * FROM DailySales;
+
+SELECT
+date_id,
+make_name,
+COUNT(DISTINCT lead_id) AS unique_leads,
+COUNT(DISTINCT partner_id) AS unique_partners
+FROM DailySales
+GROUP BY date_id, make_name;
+
+/*
+1729
+*/
+
+CREATE TABLE Followers(
+user_id INT,
+follower_id INT,
+PRIMARY KEY (user_id, follower_id)
+);
+
+INSERT INTO Followers VALUE (0, 1);
+INSERT INTO Followers VALUE (1, 0);
+INSERT INTO Followers VALUE (2, 0);
+INSERT INTO Followers VALUE (2, 1);
+
+SELECT * FROM Followers;
+
+SELECT user_id,
+COUNT(follower_id) AS followers_count
+FROM Followers
+GROUP BY user_id
+ORDER BY user_id;
+
+/*
+586
+*/
+
+CREATE TABLE Orders2(
+order_number INT,
+PRIMARY KEY(order_number),
+customer_number INT
+);
+
+INSERT INTO Orders2 VALUE (1, 1);
+INSERT INTO Orders2 VALUE (2, 2);
+INSERT INTO Orders2 VALUE (3, 3);
+INSERT INTO Orders2 VALUE (4, 3);
+
+SELECT * FROM Orders2;
+
+SELECT customer_number
+FROM Orders2
+GROUP BY customer_number
+ORDER BY COUNT(order_number) DESC LIMIT 0, 1;
+
+/*
+511
+*/
+
+CREATE TABLE Activity2(
+player_id INT,
+device_id INT,
+event_date DATE,
+PRIMARY KEY (player_id, event_date),
+games_played INT
+);
+
+INSERT INTO Activity2 VALUE (1, 2, "2016-03-01", 5);
+INSERT INTO Activity2 VALUE (1, 2, "2016-05-02", 6);
+INSERT INTO Activity2 VALUE (2, 3, "2017-06-25", 1);
+INSERT INTO Activity2 VALUE (3, 1, "2016-03-02", 0);
+INSERT INTO Activity2 VALUE (3, 4, "2018-07-03", 5);
+
+SELECT * FROM Activity2;
+
+SELECT
+player_id,
+MIN(event_date) AS first_login
+FROM Activity2
+GROUP BY player_id;
+
+/*
+1890
+*/
+
+CREATE TABLE Logins(
+user_id INT,
+time_stamp DATETIME,
+PRIMARY KEY (user_id, time_stamp)
+);
+
+INSERT INTO Logins VALUE (6, "2020-06-30 15:06:07");
+INSERT INTO Logins VALUE (6, "2021-04-21 14:06:06");
+INSERT INTO Logins VALUE (6, "2019-03-07 00:18:15");
+INSERT INTO Logins VALUE (8, "2020-02-01 05:10:53");
+INSERT INTO Logins VALUE (8, "2020-12-30 00:46:50");
+INSERT INTO Logins VALUE (2, "2020-01-16 02:49:50");
+INSERT INTO Logins VALUE (2, "2019-08-25 07:59:08");
+INSERT INTO Logins VALUE (14, "2019-07-14 09:00:00");
+INSERT INTO Logins VALUE (14, "2021-01-06 11:59:59");
+
+SELECT * FROM Logins;
+
+SELECT
+user_id,
+MAX(time_stamp) AS last_stamp
+FROM Logins
+WHERE YEAR(time_stamp) = 2020
+GROUP BY user_id;
+
+/*
+1741
+*/
+
+CREATE TABLE Employees4 (
+emp_id INT,
+event_day DATE,
+in_time INT,
+PRIMARY KEY (emp_id, event_day, in_time),
+out_time INT
+);
+
+INSERT INTO Employees4 VALUE (1, "2020-11-28", 4, 32);
+INSERT INTO Employees4 VALUE (1, "2020-11-28", 55, 200);
+INSERT INTO Employees4 VALUE (1, "2020-12-03", 1, 42);
+INSERT INTO Employees4 VALUE (2, "2020-11-28", 3, 33);
+INSERT INTO Employees4 VALUE (2, "2020-12-09", 47, 74);
+
+SELECT * FROM employees4;
+
+SELECT
+event_day AS day,
+emp_id,
+SUM(out_time - in_time) AS total_time
+FROM employees4
+GROUP BY emp_id, event_day;
