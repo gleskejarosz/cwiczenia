@@ -911,3 +911,154 @@ FROM Users2
 LEFT JOIN Orders3
 ON buyer_id = user_id AND YEAR(order_date)='2019'
 GROUP BY user_id, join_date;
+
+/*
+182
+*/
+
+CREATE TABLE Person1(
+    id INT,
+    PRIMARY KEY(id),
+    email VARCHAR(64)
+);
+
+INSERT INTO Person1 VALUES (1, "a@b.com");
+INSERT INTO Person1 VALUES (2, "c@d.com");
+INSERT INTO Person1 VALUES (3, "a@b.com");
+
+SELECT * FROM Person1;
+
+SELECT email
+FROM Person1
+GROUP BY email
+HAVING count(*) > 1;
+
+/*
+1050
+*/
+
+CREATE TABLE ActorDirector(
+actor_id INT,
+director_id INT,
+timestamp INT,
+PRIMARY KEY(timestamp)
+);
+
+INSERT INTO ActorDirector VALUE (1, 1, 0);
+INSERT INTO ActorDirector VALUE (1, 1, 1);
+INSERT INTO ActorDirector VALUE (1, 1, 2);
+INSERT INTO ActorDirector VALUE (1, 2, 3);
+INSERT INTO ActorDirector VALUE (1, 2, 4);
+INSERT INTO ActorDirector VALUE (2, 1, 5);
+INSERT INTO ActorDirector VALUE (2, 1, 6);
+
+SELECT * FROM ActorDirector;
+TRUNCATE actordirector;
+
+INSERT INTO ActorDirector VALUE (3,2,7);
+INSERT INTO ActorDirector VALUE (3,5,6);
+INSERT INTO ActorDirector VALUE (2,2,0);
+INSERT INTO ActorDirector VALUE (4,5,14);
+INSERT INTO ActorDirector VALUE (2,3,2);
+INSERT INTO ActorDirector VALUE (4,3,11);
+INSERT INTO ActorDirector VALUE (3,1,4);
+INSERT INTO ActorDirector VALUE (5,1,9);
+INSERT INTO ActorDirector VALUE (3,3,1);
+INSERT INTO ActorDirector VALUE (5,5,12);
+INSERT INTO ActorDirector VALUE (2,5,13);
+INSERT INTO ActorDirector VALUE (3,5,10);
+INSERT INTO ActorDirector VALUE (4,5,8);
+INSERT INTO ActorDirector VALUE (1,1,3);
+INSERT INTO ActorDirector VALUE (4,5,5);
+
+SELECT
+actor_id,
+director_id
+FROM ActorDirector
+GROUP BY actor_id, director_id
+HAVING COUNT(actor_id) >= 3;
+
+/*
+1587
+*/
+
+CREATE TABLE Users3(
+account INT,
+PRIMARY KEY(account),
+name VARCHAR(64)
+);
+
+CREATE TABLE Transactions2(
+trans_id INT,
+PRIMARY KEY(trans_id),
+account INT,
+amount INT,
+transacted_on DATE
+);
+
+INSERT INTO Users3 VALUE (900001,"Alice");
+INSERT INTO Users3 VALUE (900002,"Bob");
+INSERT INTO Users3 VALUE (900003,"Charlie");
+
+INSERT INTO Transactions2 VALUE (1, 900001,7000,"2020-08-01");
+INSERT INTO Transactions2 VALUE (2, 900001,7000,"2020-09-01");
+INSERT INTO Transactions2 VALUE (3, 900001,-3000,"2020-09-02");
+INSERT INTO Transactions2 VALUE (4, 900002,1000,"2020-09-12");
+INSERT INTO Transactions2 VALUE (5, 900003,6000,"2020-08-07");
+INSERT INTO Transactions2 VALUE (6, 900003,6000,"2020-09-07");
+INSERT INTO Transactions2 VALUE (7, 900003,-4000,"2020-09-11");
+
+SELECT * FROM Users3;
+SELECT * FROM Transactions2;
+
+SELECT t1.name,
+SUM(t2.amount) AS balance
+FROM Users3 t1
+JOIN Transactions2 t2
+ON t1.account=t2.account
+GROUP BY name
+HAVING SUM(t2.amount) > 10000;
+
+/*
+1084
+*/
+
+CREATE TABLE Product(
+product_id INT,
+PRIMARY KEY (product_id),
+product_name VARCHAR(64),
+unit_price INT
+);
+
+CREATE TABLE Sales(
+seller_id INT,
+product_id INT,
+FOREIGN KEY(product_id) REFERENCES Product(product_id),
+buyer_id INT,
+sale_date DATE,
+quantity INT,
+price INT
+);
+
+INSERT INTO Product VALUE(1, "S8", 1000);
+INSERT INTO Product VALUE(2, "G4", 800);
+INSERT INTO Product VALUE(3, "iPhone", 1400);
+
+INSERT INTO Sales VALUE(1, 1, 1, "2019-01-21", 2, 2000);
+INSERT INTO Sales VALUE(1, 2, 2, "2019-02-17", 1, 800);
+INSERT INTO Sales VALUE(2, 2, 3, "2019-06-02", 1, 800);
+INSERT INTO Sales VALUE(3, 3, 4, "2019-05-13", 2, 2800);
+INSERT INTO Sales VALUE(3, 2, 5, "2019-06-13", 2, 200);
+
+SELECT * FROM Product;
+SELECT * FROM Sales;
+
+SELECT
+product_id,
+product_name
+FROM Product
+WHERE product_id NOT IN
+(SELECT product_id FROM Sales
+WHERE sale_date NOT BETWEEN '2019-01-01' AND '2019-03-31')
+AND product_id IN
+(SELECT product_id FROM Sales);
