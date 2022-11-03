@@ -1,25 +1,13 @@
 def wateringPlants(plants: list, capacity: int) -> int:
+    moves = 0
     temp_capacity = capacity
-    moves = 1
-    idx = 0
-    start = 1
-
-    while idx < len(plants):
-        plant = plants[idx]
-        if plant <= temp_capacity:
-            temp_capacity -= plant
-            start = 1
-            idx += 1
-        else:
-            moves += idx
-            start = 0
+    for idx, plant in enumerate(plants):
+        if temp_capacity < plant:
+            moves += 2 * idx
             temp_capacity = capacity
-        if start == 0:
-            moves += idx
-        else:
-            moves += 1
-
-    return moves - 1
+        moves += 1
+        temp_capacity -= plant
+    return moves
 
 
 if __name__ == '__main__':
