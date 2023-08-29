@@ -235,7 +235,54 @@ def students_and_examinations(students: pd.DataFrame, subjects: pd.DataFrame, ex
     return merged_table2.sort_values(by=['student_id', 'subject_name'])
 
 
+def trips_and_users(trips: pd.DataFrame, users: pd.DataFrame) -> pd.DataFrame:
+    merged_table1 = trips.merge(users7, left_on="client_id", right_on="users_id")
+    merged_table3 = merged_table1.merge(users7, left_on="driver_id", right_on="users_id")
+    cond_x = merged_table3["banned_x"] != "Yes"
+    cond_y = merged_table3["banned_y"] != "Yes"
+    cond1 = trips['request_at'].between("2013-10-01", "2013-10-03")
+    unbanned_table = merged_table3[cond1 & cond_x & cond_y]
+    cond2 = merged_table3["status"] != "completed"
+    cancelled_table = unbanned_table[cond2]
+    grouped_daily_all = unbanned_table.groupby(by="request_at").agg(requests=("id", "count")).reset_index()
+    grouped_daily_cancelled = cancelled_table.groupby(by="request_at").agg(cancelled=("id", "count")).reset_index()
+    merged_table2 = grouped_daily_all.merge(grouped_daily_cancelled, on="request_at", how="left").fillna(0)
+    merged_table2["Cancellation Rate"] = round(merged_table2["cancelled"] / merged_table2["requests"], 2)
+    return merged_table2[["request_at", "Cancellation Rate"]].rename(columns={"request_at": "Day"})
+
+
 if __name__ == '__main__':
+    print("Leetcode 262")
+    trips = pd.DataFrame(
+        {"id": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+         "client_id": [1, 2, 3, 4, 1, 2, 3, 2, 3, 4],
+         "driver_id": [10, 11, 12, 13, 10, 11, 12, 12, 10, 13],
+         "city_id": [1, 1, 6, 6, 1, 6, 6, 12, 12, 12],
+         "status": ["completed", "cancelled_by_driver", "completed", "cancelled_by_client", "completed", "completed",
+                    "completed", "completed", "completed", "cancelled_by_driver"],
+         "request_at": ["2013-10-01", "2013-10-01", "2013-10-01", "2013-10-01", "2013-10-02", "2013-10-02", "2013-10-02",
+                        "2013-10-03", "2013-10-03", "2013-10-03"]}
+    )
+    users7 = pd.DataFrame(
+        {"users_id": [1, 2, 3, 4, 10, 11, 12, 13],
+         "banned": ["No", "Yes", "No", "No", "No", "No", "No", "No"],
+         "role": ["client", "client", "client", "client", "driver", "driver", "driver", "driver"]}
+    )
+    trips2 = pd.DataFrame(
+        {"id": [1],
+         "client_id": [1],
+         "driver_id": [10],
+         "city_id": [1],
+         "status": ["cancelled_by_client"],
+         "request_at": ["2013-10-04"]}
+    )
+    users8 = pd.DataFrame(
+        {"users_id": [1, 10],
+         "banned": ["No", "No"],
+         "role": ["client", "driver"]}
+    )
+    print(trips_and_users(trips=trips2, users=users8))
+    print(trips_and_users(trips=trips, users=users7))
     print("Leetcode 1280")
     students = pd.DataFrame(
         {"student_id": [1, 2, 13, 6],
